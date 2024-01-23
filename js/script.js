@@ -310,26 +310,26 @@ function addCommas(number) {
 
 
 //display backdrop on details pages
-function displayBackgroundImage(type, backgroundPath){
-    const overlayDiv = document.createElement('div');
-    overlayDiv.style.backgroundImage = `url(https://image.tmdb.org/t/p/original${backgroundPath})`;
-    overlayDiv.style.backgroundSize = 'cover';
-    overlayDiv.style.backgroundPosition = 'center';
-    overlayDiv.style.backgroundRepeat = 'no-repeat';
-    overlayDiv.style.height = '100vh';
-    overlayDiv.style.width = '100vw';
-    overlayDiv.style.position = 'absolute';
-    overlayDiv.style.top = '0';
-    overlayDiv.style.left = '0';
-    overlayDiv.style.zIndex = '-1';
-    overlayDiv.style.opacity = '0.1'
+// main script
 
-    if(type === 'movie'){
-        document.querySelector('#movie-details').appendChild(overlayDiv)
-    } else {
-        document.querySelector(`#show-details`).appendChild(overlayDiv)
-    }
+function displayBackgroundImage(type, backgroundPath) {
+  const worker = new Worker('backgroundWorker.js');
+
+  worker.addEventListener('message', (event) => {
+    const { overlayDiv, type } = event.data;
+
+    const overlayDivElement = document.createElement('div');
+    Object.assign(overlayDivElement.style, overlayDiv);
+
+    const targetId = (type === 'movie') ? '#movie-details' : '#show-details';
+    const targetElement = document.querySelector(targetId);
+    targetElement.appendChild(overlayDivElement);
+  });
+
+  // Start the worker
+  worker.postMessage({ type, backgroundPath });
 }
+
 
 //this function will display slidder with movies
 

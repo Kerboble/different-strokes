@@ -333,7 +333,7 @@ function displayBackgroundImage(type, backgroundPath){
 
 //this function will display slidder with movies
 
-async function dsplaySlidder(){
+async function displaySlider(){
   const {results} = await fetchAPIData('movie/now_playing')
   
   results.forEach((movie) => {
@@ -449,7 +449,6 @@ function displayPageination(){
   }
 
   //disable next if on last page
-
   if(global.search.page === global.search.totalPages){
     document.querySelector('#next').disabled = true;
   }
@@ -470,20 +469,26 @@ function displayPageination(){
 }
 
 //search api data 
-async function searchAPIData(){
-  const API_KEY = global.api.apiKey
-  const API_URL = global.api.apiURL
+function searchAPIData() {
+  return new Promise((resolve, reject) => {
+    const API_KEY = global.api.apiKey;
+    const API_URL = global.api.apiURL;
 
-  showSpinner()
+    showSpinner();
 
-  const response = await fetch(`${API_URL}search/${global.search.type}?api_key=${API_KEY}&language=en-US&query=${global.search.term}&page=${global.search.page}`);
-
-  const data = await response.json();
-  
-  hideSpinner();
-
-  return data;
+    fetch(`${API_URL}search/${global.search.type}?api_key=${API_KEY}&language=en-US&query=${global.search.term}&page=${global.search.page}`)
+      .then(response => response.json())
+      .then(data => {
+        hideSpinner();
+        resolve(data);
+      })
+      .catch(error => {
+        hideSpinner();
+        reject(error);
+      });
+  });
 }
+
 
 
 function showAlert(message, className){
@@ -530,7 +535,7 @@ function init(){
     switch(global.currentPage){
         case '/':
         case '/index.html':
-            dsplaySlidder()
+            displaySlider()
             displayPopularMovies();
             break;
         case "/shows.html":
